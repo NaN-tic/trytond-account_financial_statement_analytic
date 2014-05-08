@@ -1,0 +1,7 @@
+# 
+msgid ""
+msgstr "Content-Type: text/plain; charset=utf-8\n"
+
+msgctxt "field:account.financial.statement.report,analytic_account:"
+msgid "Analytic Account"
+msgstr "Cuenta analítica"

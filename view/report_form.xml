@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<!-- The COPYRIGHT file at the top level of this repository contains the full
+    copyright notices and license terms. -->
+<data>
+    <xpath position="after"
+        expr="/form/notebook/page[@id='configuration']/field[@name='company']">
+        <label name="analytic_account"/>
+        <field name="analytic_account"/>
+    </xpath>
+</data>
