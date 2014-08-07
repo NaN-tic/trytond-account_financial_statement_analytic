@@ -75,7 +75,7 @@ class TestCase(unittest.TestCase):
         self.account.write([payable], {'code': '41'})
         chart, = self.account.search([
                 ('parent', '=', None),
-                ])
+                ], limit=1)
         self.account.create([{
                     'name': 'View',
                     'code': '1',
