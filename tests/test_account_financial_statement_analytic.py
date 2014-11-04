@@ -170,6 +170,7 @@ class TestCase(unittest.TestCase):
                                 'account': expense.id,
                                 'debit': Decimal(50),
                                 }, {
+                                'party': supplier2.id,
                                 'account': payable.id,
                                 'credit': Decimal(50),
                                 }]),
@@ -184,6 +185,7 @@ class TestCase(unittest.TestCase):
                                 'account': revenue.id,
                                 'credit': Decimal(300),
                                 }, {
+                                'party': customer2.id,
                                 'account': receivable.id,
                                 'debit': Decimal(300),
                                 }]),
@@ -296,6 +298,13 @@ class TestCase(unittest.TestCase):
                                 }])
                     ]}
             # Create some moves
+            customer1, = self.party.search([
+                    ('name', '=', 'customer1'),
+                    ])
+            supplier1, = self.party.search([
+                    ('name', '=', 'supplier1'),
+                    ])
+
             vlist = [{
                     'period': period.id,
                     'journal': journal_revenue.id,
@@ -304,6 +313,7 @@ class TestCase(unittest.TestCase):
                         ('create', [first_account_line, {
                                     'account': receivable.id,
                                     'debit': Decimal(100),
+                                    'party': customer1.id,
                                     }]),
                         ],
                     }, {
@@ -314,6 +324,7 @@ class TestCase(unittest.TestCase):
                         ('create', [second_account_line, {
                                     'account': payable.id,
                                     'credit': Decimal(30),
+                                    'party': supplier1.id,
                                     }]),
                         ],
                     },
