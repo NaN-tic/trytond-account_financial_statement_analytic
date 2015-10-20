@@ -1,9 +1,10 @@
 #:after:account/account:section:otras_tareas_contables#
 
+.. inheritref:: account_financial_statement_analytic/account_financial_statement_analytic:section:contabilidad_analitica
+
 =====================================================================
 Contabilidad analítica en balance de situación y pérdidas y ganancias
 =====================================================================
-.. Modulo account_financial_statement_analytic
 
 Podemos ver nuestros informes de balance de situación y pérdidas y ganancias 
 filtrados por una cuenta analítica. El proceso es muy semejante al del balance 
