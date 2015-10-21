@@ -1,7 +1,5 @@
 #:after:account/account:section:otras_tareas_contables#
 
-.. inheritref:: account_financial_statement_analytic/account_financial_statement_analytic:paragraph:contabilidad_analitica
-
 =====================================================================
 Contabilidad analítica en balance de situación y pérdidas y ganancias
 =====================================================================
