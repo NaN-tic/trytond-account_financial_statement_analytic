@@ -13,6 +13,7 @@ Así una vez creado el informe, veremos que nos aparece el campo cuenta analíti
 al lado de la empresa. 
 
 .. tal como muestra la siguiente imagen (informe de balances contables)
+
 Si seleccionamos alguna cuenta, esta se aplicará como filtro para el cálculo de 
 los valores, teniendo en cuenta sólo aquellos apuntes que tengan un movimiento 
 analítico en la cuenta seleccionada o alguna de sus cuentas hijas. Por ejemplo, 
