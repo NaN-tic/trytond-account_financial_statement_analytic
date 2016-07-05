@@ -33,7 +33,7 @@ class ReportLine:
         Account = pool.get('account.account')
         Company = pool.get('company.company')
         Currency = pool.get('currency.currency')
-        cursor = Transaction().cursor
+        cursor = Transaction().connection.cursor()
         table = Analytic.__table__()
         line = Line.__table__()
         move_line = MoveLine.__table__()
