@@ -1,89 +1,71 @@
-#!/usr/bin/env python
-# The COPYRIGHT file at the top level of this repository contains the full
-# copyright notices and license terms.
-from decimal import Decimal
+# This file is part of Tryton.  The COPYRIGHT file at the top level of
+# this repository contains the full copyright notices and license terms.
 import unittest
+from decimal import Decimal
+
 import trytond.tests.test_tryton
-from trytond.tests.test_tryton import test_view, test_depends
-from trytond.tests.test_tryton import POOL, DB_NAME, USER, CONTEXT
-from trytond.transaction import Transaction
+from trytond.tests.test_tryton import ModuleTestCase, with_transaction
+from trytond.pool import Pool
+
+from trytond.modules.company.tests import create_company, set_company
+from trytond.modules.account.tests import create_chart, get_fiscalyear
 
 
-class TestCase(unittest.TestCase):
+class TestCase(ModuleTestCase):
     '''
     Test module.
     '''
+    module = 'account_financial_statement_analytic'
 
-    def setUp(self):
-        trytond.tests.test_tryton.install_module(
-            'account_financial_statement_analytic')
-        self.account = POOL.get('account.account')
-        self.analytic_account = POOL.get('analytic_account.account')
-        self.company = POOL.get('company.company')
-        self.user = POOL.get('res.user')
-        self.party = POOL.get('party.party')
-        self.party_address = POOL.get('party.address')
-        self.fiscalyear = POOL.get('account.fiscalyear')
-        self.move = POOL.get('account.move')
-        self.line = POOL.get('account.move.line')
-        self.journal = POOL.get('account.journal')
-        self.period = POOL.get('account.period')
-        self.taxcode = POOL.get('account.tax.code')
-        self.template = POOL.get('account.financial.statement.template')
-        self.template_line = POOL.get(
-            'account.financial.statement.template.line')
-        self.report = POOL.get('account.financial.statement.report')
-        self.report_line = POOL.get('account.financial.statement.report.line')
+    def create_moves(self, company):
+        pool = Pool()
+        Party = pool.get('party.party')
+        Party_address = pool.get('party.address')
+        Move = pool.get('account.move')
+        Account = pool.get('account.account')
+        Journal = pool.get('account.journal')
 
-    def test0005views(self):
-        '''
-        Test views.
-        '''
-        test_view('account_financial_statement_analytic')
-
-    def test0006depends(self):
-        '''
-        Test depends.
-        '''
-        test_depends()
-
-    def create_moves(self):
-        fiscalyear, = self.fiscalyear.search([])
+        # Create Chart of Accounts and Fiscalyear
+        create_chart(company)
+        fiscalyear = get_fiscalyear(company)
+        fiscalyear.save()
+        fiscalyear.create_period([fiscalyear])
         period = fiscalyear.periods[0]
         last_period = fiscalyear.periods[-1]
-        journal_revenue, = self.journal.search([
+        journal_revenue, = Journal.search([
                 ('code', '=', 'REV'),
                 ])
-        journal_expense, = self.journal.search([
+        journal_expense, = Journal.search([
                 ('code', '=', 'EXP'),
                 ])
-        revenue, = self.account.search([
+        revenue, = Account.search([
                 ('kind', '=', 'revenue'),
                 ])
-        self.account.write([revenue], {'code': '7'})
-        receivable, = self.account.search([
+        Account.write([revenue], {'code': '7'})
+        receivable, = Account.search([
                 ('kind', '=', 'receivable'),
                 ])
-        self.account.write([receivable], {'code': '43'})
-        expense, = self.account.search([
+        Account.write([receivable], {'code': '43'})
+        expense, = Account.search([
                 ('kind', '=', 'expense'),
                 ])
-        self.account.write([expense], {'code': '6'})
-        payable, = self.account.search([
+        Account.write([expense], {'code': '6'})
+        payable, = Account.search([
                 ('kind', '=', 'payable'),
                 ])
-        self.account.write([payable], {'code': '41'})
-        chart, = self.account.search([
+        Account.write([payable], {'code': '41'})
+        chart, = Account.search([
                 ('parent', '=', None),
                 ], limit=1)
-        self.account.create([{
+        Account.create([{
                     'name': 'View',
                     'code': '1',
                     'kind': 'view',
                     'parent': chart.id,
                     }])
-        #Create some parties
-        customer1, customer2, supplier1, supplier2 = self.party.create([{
+
+        # Create some parties
+        customer1, customer2, supplier1, supplier2 = Party.create([{
                         'name': 'customer1',
                     }, {
                         'name': 'customer2',
@@ -92,13 +74,14 @@ class TestCase(unittest.TestCase):
                     }, {
                         'name': 'supplier2',
                     }])
-        self.party_address.create([{
+        Party_address.create([{
                         'active': True,
                         'party': customer1.id,
                     }, {
                         'active': True,
                         'party': supplier1.id,
                     }])
+
         # Create some moves
         vlist = [
             {
@@ -192,13 +175,27 @@ class TestCase(unittest.TestCase):
                     ],
                 },
             ]
-        moves = self.move.create(vlist)
-        self.move.post(moves)
+        moves = Move.create(vlist)
+        Move.post(moves)
 
+    @with_transaction()
     def test0010_with_analytic(self):
-        with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            self.create_moves()
-            template, = self.template.create([{
+        pool = Pool()
+        Party = pool.get('party.party')
+        Account = pool.get('account.account')
+        AnalyticAccount = pool.get('analytic_account.account')
+        Fiscalyear = pool.get('account.fiscalyear')
+        Move = pool.get('account.move')
+        Journal = pool.get('account.journal')
+        Template = pool.get('account.financial.statement.template')
+        Report = pool.get('account.financial.statement.report')
+
+        party = Party(name='Party')
+        party.save()
+        company = create_company()
+        with set_company(company):
+            self.create_moves(company)
+            template, = Template.create([{
                         'name': 'Template',
                         'mode': 'credit-debit',
                         'lines': [('create', [{
@@ -215,26 +212,26 @@ class TestCase(unittest.TestCase):
                                 )],
                         }])
             results = template.lines[0]
-            root, = self.analytic_account.create([{
+            root, = AnalyticAccount.create([{
                         'type': 'root',
                         'name': 'Root',
                         }])
-            analytic_account, = self.analytic_account.create([{
+            analytic_account, = AnalyticAccount.create([{
                         'type': 'normal',
                         'name': 'Analytic Account',
                         'parent': root.id,
                         'root': root.id,
                         }])
-            fiscalyear, = self.fiscalyear.search([])
+            fiscalyear, = Fiscalyear.search([])
             period = fiscalyear.periods[0]
 
-            report, = self.report.create([{
+            report, = Report.create([{
                         'name': 'Test report',
                         'template': template.id,
                         'current_fiscalyear': fiscalyear,
                         }])
             self.assertEqual(report.state, 'draft')
-            self.report.calculate([report])
+            Report.calculate([report])
             self.assertEqual(report.state, 'calculated')
 
             results = {
@@ -242,33 +239,33 @@ class TestCase(unittest.TestCase):
                 '02': Decimal('600.0'),
                 }
             for line in report.lines:
-                self.assertEqual(results[line.code], line.current_value)
-                self.assertEqual(Decimal('0.0'), line.previous_value)
-            self.report.draft([report])
+                self.assertEqual(line.previous_value, Decimal('0.0'))
+                self.assertEqual(line.current_value, results[line.code])
+            Report.draft([report])
             report.analytic_account = analytic_account
             report.save()
-            self.report.calculate([report])
+            Report.calculate([report])
             for line in report.lines:
                 self.assertEqual(Decimal('0.0'), line.current_value)
                 self.assertEqual(Decimal('0.0'), line.previous_value)
 
-            #Create analytic moves and test their value
-            journal_revenue, = self.journal.search([
+            # Create analytic moves and test their value
+            journal_revenue, = Journal.search([
                     ('code', '=', 'REV'),
                     ])
-            journal_expense, = self.journal.search([
+            journal_expense, = Journal.search([
                     ('code', '=', 'EXP'),
                     ])
-            revenue, = self.account.search([
+            revenue, = Account.search([
                     ('kind', '=', 'revenue'),
                     ])
-            receivable, = self.account.search([
+            receivable, = Account.search([
                     ('kind', '=', 'receivable'),
                     ])
-            expense, = self.account.search([
+            expense, = Account.search([
                     ('kind', '=', 'expense'),
                     ])
-            payable, = self.account.search([
+            payable, = Account.search([
                     ('kind', '=', 'payable'),
                     ])
             first_account_line = {
@@ -298,10 +295,10 @@ class TestCase(unittest.TestCase):
                                 }])
                     ]}
             # Create some moves
-            customer1, = self.party.search([
+            customer1, = Party.search([
                     ('name', '=', 'customer1'),
                     ])
-            supplier1, = self.party.search([
+            supplier1, = Party.search([
                     ('name', '=', 'supplier1'),
                     ])
 
@@ -329,9 +326,9 @@ class TestCase(unittest.TestCase):
                         ],
                     },
                 ]
-            self.move.create(vlist)
-            self.report.draft([report])
-            self.report.calculate([report])
+            Move.create(vlist)
+            Report.draft([report])
+            Report.calculate([report])
             results = {
                 '01': Decimal('-30.0'),
                 '02': Decimal('100.0'),
@@ -339,18 +336,29 @@ class TestCase(unittest.TestCase):
             for line in report.lines:
                 self.assertEqual(results[line.code], line.current_value)
                 self.assertEqual(Decimal('0.0'), line.previous_value)
-            self.report.draft([report])
+            Report.draft([report])
             report.analytic_account = root
             report.save()
-            self.report.calculate([report])
+            Report.calculate([report])
             for line in report.lines:
                 self.assertEqual(results[line.code], line.current_value)
                 self.assertEqual(Decimal('0.0'), line.previous_value)
 
+    @with_transaction()
     def test0020_without_analytic(self):
-        with Transaction().start(DB_NAME, USER, context=CONTEXT):
-            self.create_moves()
-            template, = self.template.create([{
+        pool = Pool()
+        Party = pool.get('party.party')
+        Fiscalyear = pool.get('account.fiscalyear')
+        Template = pool.get('account.financial.statement.template')
+        Report = pool.get('account.financial.statement.report')
+        TemplateLine = pool.get('account.financial.statement.template.line')
+
+        party = Party(name='Party')
+        party.save()
+        company = create_company()
+        with set_company(company):
+            self.create_moves(company)
+            template, = Template.create([{
                         'name': 'Template',
                         'mode': 'credit-debit',
                         'lines': [('create', [{
@@ -370,8 +378,8 @@ class TestCase(unittest.TestCase):
                                 )],
                         }])
             results = template.lines[0]
-            #This must be created manually otherwise template is not set.
-            self.template_line.create([{
+            # This must be created manually otherwise template is not set.
+            TemplateLine.create([{
                             'code': '01',
                             'name': 'Expense',
                             'current_value': '6',
@@ -386,16 +394,15 @@ class TestCase(unittest.TestCase):
                             'parent': results.id,
                             'template': template.id,
                             }])
-            fiscalyear, = self.fiscalyear.search([])
-            period = fiscalyear.periods[0]
+            fiscalyear, = Fiscalyear.search([])
 
-            report, = self.report.create([{
+            report, = Report.create([{
                         'name': 'Test report',
                         'template': template.id,
                         'current_fiscalyear': fiscalyear,
                         }])
             self.assertEqual(report.state, 'draft')
-            self.report.calculate([report])
+            Report.calculate([report])
             self.assertEqual(report.state, 'calculated')
             self.assertEqual(len(report.lines), 5)
 
@@ -413,10 +420,5 @@ class TestCase(unittest.TestCase):
 
 def suite():
     suite = trytond.tests.test_tryton.suite()
-    from trytond.modules.account_financial_statement.tests import \
-        test_account_financial_statement
-    for test in test_account_financial_statement.suite():
-        if test not in suite:
-            suite.addTest(test)
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestCase))
     return suite
