@@ -274,10 +274,8 @@ class TestCase(ModuleTestCase):
                 'analytic_lines': [
                     ('create', [{
                                 'account': analytic_account.id,
-                                'name': 'Analytic Line',
                                 'credit': Decimal(100),
                                 'debit': Decimal(0),
-                                'journal': journal_revenue.id,
                                 'date': period.start_date,
                                 }])
                     ]}
@@ -287,10 +285,8 @@ class TestCase(ModuleTestCase):
                 'analytic_lines': [
                     ('create', [{
                                 'account': analytic_account.id,
-                                'name': 'Analytic Line',
                                 'debit': Decimal(30),
                                 'credit': Decimal(0),
-                                'journal': journal_expense.id,
                                 'date': period.start_date,
                                 }])
                     ]}

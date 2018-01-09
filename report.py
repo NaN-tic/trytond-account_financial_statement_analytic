@@ -12,11 +12,11 @@ from trytond.modules.account_financial_statement.report import _STATES,\
     _DEPENDS
 
 __all__ = ['Report', 'ReportLine', 'Line']
-__metaclass__ = PoolMeta
 
 
 class Report:
     __name__ = 'account.financial.statement.report'
+    __metaclass__ = PoolMeta
 
     analytic_account = fields.Many2One('analytic_account.account',
         'Analytic Account', states=_STATES, depends=_DEPENDS)
@@ -24,6 +24,7 @@ class Report:
 
 class ReportLine:
     __name__ = 'account.financial.statement.report.line'
+    __metaclass__ = PoolMeta
 
     def _get_credit_debit(self, accounts):
         pool = Pool()
@@ -44,7 +45,7 @@ class ReportLine:
             return super(ReportLine, self)._get_credit_debit(accounts)
 
         account_ids = [x.id for x in accounts]
-        #Get analytic credit, debit grouped by account.account
+        # Get analytic credit, debit grouped by account.account
         result = {
             'debit': {}.fromkeys(account_ids, Decimal('0.0')),
             'credit': {}.fromkeys(account_ids, Decimal('0.0')),
@@ -100,6 +101,7 @@ class ReportLine:
 
 class Line:
     __name__ = 'analytic_account.line'
+    __metaclass__ = PoolMeta
 
     @classmethod
     def query_get(cls, table):
