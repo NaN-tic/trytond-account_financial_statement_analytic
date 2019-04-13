@@ -39,19 +39,19 @@ class TestCase(ModuleTestCase):
                 ('code', '=', 'EXP'),
                 ])
         revenue, = Account.search([
-                ('kind', '=', 'revenue'),
+                ('type.revenue', '=', True),
                 ])
         Account.write([revenue], {'code': '7'})
         receivable, = Account.search([
-                ('kind', '=', 'receivable'),
+                ('type.receivable', '=', True),
                 ])
         Account.write([receivable], {'code': '43'})
         expense, = Account.search([
-                ('kind', '=', 'expense'),
+                ('type.expense', '=', True),
                 ])
         Account.write([expense], {'code': '6'})
         payable, = Account.search([
-                ('kind', '=', 'payable'),
+                ('type.payable', '=', True),
                 ])
         Account.write([payable], {'code': '41'})
         chart, = Account.search([
@@ -60,7 +60,6 @@ class TestCase(ModuleTestCase):
         Account.create([{
                     'name': 'View',
                     'code': '1',
-                    'kind': 'view',
                     'parent': chart.id,
                     }])
 
@@ -257,16 +256,16 @@ class TestCase(ModuleTestCase):
                     ('code', '=', 'EXP'),
                     ])
             revenue, = Account.search([
-                    ('kind', '=', 'revenue'),
+                    ('type.revenue', '=', True),
                     ])
             receivable, = Account.search([
-                    ('kind', '=', 'receivable'),
+                    ('type.receivable', '=', True),
                     ])
             expense, = Account.search([
-                    ('kind', '=', 'expense'),
+                    ('type.expense', '=', True),
                     ])
             payable, = Account.search([
-                    ('kind', '=', 'payable'),
+                    ('type.payable', '=', True),
                     ])
             first_account_line = {
                 'account': revenue.id,
