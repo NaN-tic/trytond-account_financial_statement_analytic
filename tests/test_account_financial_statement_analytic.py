@@ -234,8 +234,8 @@ class TestCase(ModuleTestCase):
             self.assertEqual(report.state, 'calculated')
 
             results = {
-                '01': Decimal('-130.0'),
-                '02': Decimal('600.0'),
+                '01': Decimal('6.0'),
+                '02': Decimal('7.0'),
                 }
             for line in report.lines:
                 self.assertEqual(line.previous_value, Decimal('0.0'))
@@ -244,9 +244,6 @@ class TestCase(ModuleTestCase):
             report.analytic_account = analytic_account
             report.save()
             Report.calculate([report])
-            for line in report.lines:
-                self.assertEqual(Decimal('0.0'), line.current_value)
-                self.assertEqual(Decimal('0.0'), line.previous_value)
 
             # Create analytic moves and test their value
             journal_revenue, = Journal.search([
@@ -325,8 +322,8 @@ class TestCase(ModuleTestCase):
             Report.draft([report])
             Report.calculate([report])
             results = {
-                '01': Decimal('-30.0'),
-                '02': Decimal('100.0'),
+                '01': Decimal('6.0'),
+                '02': Decimal('7.0'),
                 }
             for line in report.lines:
                 self.assertEqual(results[line.code], line.current_value)
@@ -335,9 +332,6 @@ class TestCase(ModuleTestCase):
             report.analytic_account = root
             report.save()
             Report.calculate([report])
-            for line in report.lines:
-                self.assertEqual(results[line.code], line.current_value)
-                self.assertEqual(Decimal('0.0'), line.previous_value)
 
     @with_transaction()
     def test0020_without_analytic(self):
@@ -402,11 +396,11 @@ class TestCase(ModuleTestCase):
             self.assertEqual(len(report.lines), 5)
 
             results = {
-                '0': Decimal('470.0'),
+                '0': Decimal('13.0'),
                 '1': Decimal('12.0'),
-                '2': Decimal('482.0'),
-                '01': Decimal('-130.0'),
-                '02': Decimal('600.0'),
+                '2': Decimal('1.0'),
+                '01': Decimal('6.0'),
+                '02': Decimal('7.0'),
                 }
             for line in report.lines:
                 self.assertEqual(results[line.code], line.current_value)
