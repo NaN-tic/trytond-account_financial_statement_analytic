@@ -188,11 +188,24 @@ class TestCase(ModuleTestCase):
         Journal = pool.get('account.journal')
         Template = pool.get('account.financial.statement.template')
         Report = pool.get('account.financial.statement.report')
+        AnalyticAccount = pool.get('analytic_account.account')
 
         party = Party(name='Party')
         party.save()
         company = create_company()
         with set_company(company):
+            root, = AnalyticAccount.create([{
+                        'type': 'root',
+                        'name': 'Root',
+                        }])
+            analytic_account, = AnalyticAccount.create([{
+                        'type': 'normal',
+                        'name': 'Analytic Account',
+                        'parent': root.id,
+                        'root': root.id,
+                        }])
+
+
             self.create_moves(company)
             template, = Template.create([{
                         'name': 'Template',
@@ -341,11 +354,23 @@ class TestCase(ModuleTestCase):
         Template = pool.get('account.financial.statement.template')
         Report = pool.get('account.financial.statement.report')
         TemplateLine = pool.get('account.financial.statement.template.line')
+        AnalyticAccount = pool.get('analytic_account.account')
 
         party = Party(name='Party')
         party.save()
         company = create_company()
         with set_company(company):
+            root, = AnalyticAccount.create([{
+                        'type': 'root',
+                        'name': 'Root',
+                        }])
+            analytic_account, = AnalyticAccount.create([{
+                        'type': 'normal',
+                        'name': 'Analytic Account',
+                        'parent': root.id,
+                        'root': root.id,
+                        }])
+
             self.create_moves(company)
             template, = Template.create([{
                         'name': 'Template',
