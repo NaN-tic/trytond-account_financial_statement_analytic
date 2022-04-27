@@ -1,20 +1,17 @@
+
 # This file is part of Tryton.  The COPYRIGHT file at the top level of
 # this repository contains the full copyright notices and license terms.
-import unittest
-from decimal import Decimal
 
-import trytond.tests.test_tryton
+from decimal import Decimal
 from trytond.tests.test_tryton import ModuleTestCase, with_transaction
 from trytond.pool import Pool
 
-from trytond.modules.company.tests import create_company, set_company
+from trytond.modules.company.tests import create_company, set_company, CompanyTestMixin
 from trytond.modules.account.tests import create_chart, get_fiscalyear
 
 
-class TestCase(ModuleTestCase):
-    '''
-    Test module.
-    '''
+class AccountFinancialStatementAnalyticTestCase(CompanyTestMixin, ModuleTestCase):
+    'Test AccountFinancialStatementAnalytic module'
     module = 'account_financial_statement_analytic'
 
     def create_moves(self, company):
@@ -432,7 +429,4 @@ class TestCase(ModuleTestCase):
                 self.assertEqual(Decimal('0.0'), line.previous_value)
 
 
-def suite():
-    suite = trytond.tests.test_tryton.suite()
-    suite.addTests(unittest.TestLoader().loadTestsFromTestCase(TestCase))
-    return suite
+del ModuleTestCase
