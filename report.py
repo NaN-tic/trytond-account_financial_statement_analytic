@@ -17,7 +17,7 @@ class Report(metaclass=PoolMeta):
     __name__ = 'account.financial.statement.report'
 
     analytic_account = fields.Many2One('analytic_account.account',
-        'Analytic Account', states=_STATES, depends=_DEPENDS)
+        'Analytic Account', states=_STATES)
 
 
 class ReportLine(metaclass=PoolMeta):
