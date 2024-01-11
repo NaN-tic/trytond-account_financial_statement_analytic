@@ -8,8 +8,7 @@ from sql.conditionals import Coalesce
 from trytond.model import fields
 from trytond.transaction import Transaction
 from trytond.pool import Pool, PoolMeta
-from trytond.modules.account_financial_statement.report import _STATES,\
-    _DEPENDS
+from trytond.modules.account_financial_statement.report import _STATES
 
 __all__ = ['Report', 'ReportLine', 'Line']
 
