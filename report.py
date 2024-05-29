@@ -44,8 +44,8 @@ class ReportLine(metaclass=PoolMeta):
         account_ids = [x.id for x in accounts]
         # Get analytic credit, debit grouped by account.account
         result = {
-            'debit': {}.fromkeys(account_ids, Decimal('0.0')),
-            'credit': {}.fromkeys(account_ids, Decimal('0.0')),
+            'debit': {}.fromkeys(account_ids, Decimal(0)),
+            'credit': {}.fromkeys(account_ids, Decimal(0)),
             }
         id2account = {}
         for account in Analytic.search([

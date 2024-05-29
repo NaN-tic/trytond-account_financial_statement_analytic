@@ -248,7 +248,7 @@ class AccountFinancialStatementAnalyticTestCase(CompanyTestMixin, ModuleTestCase
                 '02': Decimal('7.0'),
                 }
             for line in report.lines:
-                self.assertEqual(line.previous_value, Decimal('0.0'))
+                self.assertEqual(line.previous_value, Decimal(0))
                 self.assertEqual(line.current_value, results[line.code])
             Report.draft([report])
             report.analytic_account = analytic_account
@@ -337,7 +337,7 @@ class AccountFinancialStatementAnalyticTestCase(CompanyTestMixin, ModuleTestCase
                 }
             for line in report.lines:
                 self.assertEqual(results[line.code], line.current_value)
-                self.assertEqual(Decimal('0.0'), line.previous_value)
+                self.assertEqual(Decimal(0), line.previous_value)
             Report.draft([report])
             report.analytic_account = root
             report.save()
@@ -426,7 +426,7 @@ class AccountFinancialStatementAnalyticTestCase(CompanyTestMixin, ModuleTestCase
                 }
             for line in report.lines:
                 self.assertEqual(results[line.code], line.current_value)
-                self.assertEqual(Decimal('0.0'), line.previous_value)
+                self.assertEqual(Decimal(0), line.previous_value)
 
 
 del ModuleTestCase
