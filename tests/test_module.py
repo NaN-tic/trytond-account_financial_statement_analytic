@@ -189,7 +189,6 @@ class AccountFinancialStatementAnalyticTestCase(CompanyTestMixin, ModuleTestCase
         Journal = pool.get('account.journal')
         Template = pool.get('account.financial.statement.template')
         Report = pool.get('account.financial.statement.report')
-        AnalyticAccount = pool.get('analytic_account.account')
 
         party = Party(name='Party')
         party.save()
@@ -205,7 +204,6 @@ class AccountFinancialStatementAnalyticTestCase(CompanyTestMixin, ModuleTestCase
                         'parent': root.id,
                         'root': root.id,
                         }])
-
 
             self.create_moves(company)
             template, = Template.create([{
@@ -255,7 +253,7 @@ class AccountFinancialStatementAnalyticTestCase(CompanyTestMixin, ModuleTestCase
                 self.assertEqual(line.previous_value, Decimal(0))
                 self.assertEqual(line.current_value, results[line.code])
             Report.draft([report])
-            report.analytic_account = analytic_account
+            report.analytic_accounts = [analytic_account]
             report.save()
             Report.calculate([report])
 
@@ -347,7 +345,7 @@ class AccountFinancialStatementAnalyticTestCase(CompanyTestMixin, ModuleTestCase
                 self.assertEqual(results[line.code], line.current_value)
                 self.assertEqual(Decimal(0), line.previous_value)
             Report.draft([report])
-            report.analytic_account = root
+            report.analytic_accounts = [root]
             report.save()
             Report.calculate([report])
 
