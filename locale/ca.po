@@ -1,7 +1,26 @@
-# 
+#
 msgid ""
 msgstr "Content-Type: text/plain; charset=utf-8\n"
 
-msgctxt "field:account.financial.statement.report,analytic_account:"
+msgctxt "field:account.financial.statement.report,analytic_accounts:"
+msgid "Analytic Accounts"
+msgstr "Comptes analítics"
+
+msgctxt "field:account.financial.statement.report,currency:"
+msgid "Currency"
+msgstr "Moneda"
+
+msgctxt ""
+"field:account.financial.statement.report-analytic_account.account,account:"
 msgid "Analytic Account"
 msgstr "Compte analític"
+
+msgctxt ""
+"field:account.financial.statement.report-analytic_account.account,report:"
+msgid "Report"
+msgstr "Informe"
+
+msgctxt ""
+"model:account.financial.statement.report-analytic_account.account,name:"
+msgid "Report Analytic Accounts"
+msgstr "Informe de comptes analítics"
