@@ -3,7 +3,6 @@
     copyright notices and license terms. -->
 <data>
     <xpath position="after" expr="//field[@name='company']">
-        <label name="analytic_account"/>
-        <field name="analytic_account"/>
+        <field name="analytic_accounts" colspan="6"/>
     </xpath>
 </data>
