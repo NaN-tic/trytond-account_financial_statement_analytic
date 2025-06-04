@@ -1,23 +1,79 @@
 # The COPYRIGHT file at the top level of this repository contains
 # the full copyright notices and license terms.
 from decimal import Decimal
-from sql import Column
+from sql import Column, Null
 from sql.aggregate import Sum
 from sql.conditionals import Coalesce
 
-from trytond.model import fields
+from trytond.model import fields, ModelSQL
 from trytond.transaction import Transaction
 from trytond.pool import Pool, PoolMeta
+from trytond.pyson import Bool, Eval, If
 from trytond.modules.account_financial_statement.report import _STATES
 
-__all__ = ['Report', 'ReportLine', 'Line']
+
+class ReportAnalyticAccounts(ModelSQL):
+    "Report Analytic Accounts"
+    __name__ = 'account.financial.statement.report-analytic_account.account'
+
+    report = fields.Many2One('account.financial.statement.report', "Report",
+        ondelete='CASCADE', required=True)
+    account = fields.Many2One('analytic_account.account', "Analytic Account",
+        ondelete='CASCADE', required=True)
 
 
 class Report(metaclass=PoolMeta):
     __name__ = 'account.financial.statement.report'
 
-    analytic_account = fields.Many2One('analytic_account.account',
-        'Analytic Account', states=_STATES)
+    analytic_accounts = fields.Many2Many(
+        'account.financial.statement.report-analytic_account.account',
+        'report', 'account', 'Analytic Accounts',
+        domain=[
+            ('company', '=', Eval('company', -1)),
+            If(Bool(Eval('analytic_accounts')),
+                ('currency', '=', Eval('currency')),
+                ())
+            ],
+        states=_STATES)
+    currency = fields.Function(fields.Many2One('currency.currency',
+        'Currency'), 'on_change_with_currency')
+    #currency = fields.Function(fields.Many2One('currency.currency',
+    #    'Currency'), 'on_change_with_currency', searcher='search_currency')
+
+    @classmethod
+    def __register__(cls, module_name):
+        pool = Pool()
+        ReportAnalytic = pool.get(
+            'account.financial.statement.report-analytic_account.account')
+
+        sql_table = cls.__table__()
+        report_analytic_table = ReportAnalytic.__table__()
+        table = cls.__table_handler__(module_name)
+
+        transaction = Transaction()
+        cursor = transaction.connection.cursor()
+
+        exist = table.column_exist('analytic_account')
+
+        super().__register__(module_name)
+
+        if exist:
+            cursor.execute(*report_analytic_table.insert(
+                    columns=[report_analytic_table.report,
+                        report_analytic_table.account],
+                    values=sql_table.select(sql_table.id,
+                        sql_table.analytic_account,
+                        where=sql_table.analytic_account != Null)))
+            table.drop_column('analytic_account')
+
+    @fields.depends('company')
+    def on_change_with_currency(self, name=None):
+        return self.company.currency if self.company else None
+
+    #@classmethod
+    #def search_currency(cls, name, clause):
+    #    nested = clause[0][len(name) + 1:]
+    #    return [('company.currency' + nested, *clause[1:])]
 
 
 class ReportLine(metaclass=PoolMeta):
@@ -37,9 +93,10 @@ class ReportLine(metaclass=PoolMeta):
         move_line = MoveLine.__table__()
         a_account = Account.__table__()
         company = Company.__table__()
-        analytic_account = self.report.analytic_account
-        if not analytic_account:
+        analytic_accounts = self.report.analytic_accounts
+        if not analytic_accounts:
             return super(ReportLine, self)._get_credit_debit(accounts)
+        analytic_currency = self.report.currency
 
         account_ids = [x.id for x in accounts]
         # Get analytic credit, debit grouped by account.account
@@ -49,7 +106,7 @@ class ReportLine(metaclass=PoolMeta):
             }
         id2account = {}
         for account in Analytic.search([
-                    ('parent', 'child_of', analytic_account.id),
+                    ('parent', 'child_of', [a.id for a in analytic_accounts]),
                     ]):
             id2account[account.id] = account
 
@@ -90,7 +147,7 @@ class ReportLine(metaclass=PoolMeta):
                         currency = Currency(currency_id)
                         id2currency[currency.id] = currency
                     result[name][account_id] += Currency.compute(currency, sum,
-                            analytic_account.currency, round=True)
+                            analytic_currency[0].currency, round=True)
                 else:
                     result[name][account_id] += (analytic.currency.round(sum))
         return result
