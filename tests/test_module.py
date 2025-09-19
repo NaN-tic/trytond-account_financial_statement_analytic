@@ -236,6 +236,7 @@ class AccountFinancialStatementAnalyticTestCase(CompanyTestMixin, ModuleTestCase
                         'name': 'Test report',
                         'template': template.id,
                         'current_fiscalyear': fiscalyear,
+                        'current_periods': [('add', [period.id])],
                         }])
             self.assertEqual(report.state, 'draft')
             Report.calculate([report])
@@ -409,6 +410,7 @@ class AccountFinancialStatementAnalyticTestCase(CompanyTestMixin, ModuleTestCase
                         'name': 'Test report',
                         'template': template.id,
                         'current_fiscalyear': fiscalyear,
+                        'current_periods': [('add', [fiscalyear.periods[0].id])],
                         }])
             self.assertEqual(report.state, 'draft')
             Report.calculate([report])
