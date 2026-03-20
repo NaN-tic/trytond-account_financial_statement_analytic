@@ -35,6 +35,9 @@ class Report(metaclass=PoolMeta):
                 ())
             ],
         states=_STATES)
+    analytic_account = fields.Function(
+        fields.Many2One('analytic_account.account', 'Analytic Account'),
+        'get_analytic_account')
     currency = fields.Function(fields.Many2One('currency.currency',
         'Currency'), 'on_change_with_currency')
     #currency = fields.Function(fields.Many2One('currency.currency',
@@ -69,6 +72,17 @@ class Report(metaclass=PoolMeta):
     @fields.depends('company')
     def on_change_with_currency(self, name=None):
         return self.company.currency if self.company else None
+
+    @classmethod
+    def get_analytic_account(cls, reports, names):
+        result = {}
+        for report in reports:
+            value = None
+            if report.analytic_accounts and len(report.analytic_accounts) == 1:
+                value = report.analytic_accounts[0].id
+            for name in names:
+                result.setdefault(name, {})[report.id] = value
+        return result
 
     #@classmethod
     #def search_currency(cls, name, clause):
