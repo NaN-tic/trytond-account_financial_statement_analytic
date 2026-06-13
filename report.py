@@ -76,8 +76,8 @@ class Report(metaclass=PoolMeta):
     #    return [('company.currency' + nested, *clause[1:])]
 
 
-class ReportLine(metaclass=PoolMeta):
-    __name__ = 'account.financial.statement.report.line'
+class ReportLinePeriod(metaclass=PoolMeta):
+    __name__ = 'account.financial.statement.report.line.period'
 
     def _get_credit_debit(self, accounts):
         pool = Pool()
@@ -93,10 +93,10 @@ class ReportLine(metaclass=PoolMeta):
         move_line = MoveLine.__table__()
         a_account = Account.__table__()
         company = Company.__table__()
-        analytic_accounts = self.report.analytic_accounts
+        analytic_accounts = self.report_period.report.analytic_accounts
         if not analytic_accounts:
-            return super(ReportLine, self)._get_credit_debit(accounts)
-        analytic_currency = self.report.currency
+            return super(ReportLinePeriod, self)._get_credit_debit(accounts)
+        analytic_currency = self.report_period.report.currency
 
         account_ids = [x.id for x in accounts]
         # Get analytic credit, debit grouped by account.account
