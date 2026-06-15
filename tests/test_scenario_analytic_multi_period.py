@@ -125,7 +125,6 @@ class TestFinancialStatementAnalyticMultiPeriod(unittest.TestCase):
         revenue_line.code = 'R'
         revenue_line.name = 'Revenue'
         revenue_line.current_value = 'balance("%s")' % self.revenue.code
-        revenue_line.previous_value = 'balance("%s")' % self.revenue.code
         revenue_line.save()
 
     def test(self):
