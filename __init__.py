@@ -8,7 +8,7 @@ def register():
     Pool.register(
         report.ReportAnalyticAccounts,
         report.Report,
-        report.ReportLine,
+        report.ReportLinePeriod,
         report.Line,
         account.AnalyticAccount,
         module='account_financial_statement_analytic', type_='model')
